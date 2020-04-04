@@ -1,6 +1,6 @@
 pub mod base64 {
-    use serde::{Deserialize, de::Error, ser::Serializer, de::Deserializer};
-    use serde::private::de::{ContentDeserializer, Content};
+    use serde::private::de::{Content, ContentDeserializer};
+    use serde::{de::Deserializer, de::Error, ser::Serializer, Deserialize};
 
     pub fn serialize<T, S>(buffer: &T, serializer: S) -> Result<S::Ok, S::Error>
     where
@@ -15,8 +15,9 @@ pub mod base64 {
         D: Deserializer<'de>,
         T: Deserialize<'de>,
     {
-        let bytes = String::deserialize(deserializer)
-            .and_then(|string| base64::decode(&string).map_err(|err| Error::custom(err.to_string())))?;
+        let bytes = String::deserialize(deserializer).and_then(|string| {
+            base64::decode(&string).map_err(|err| Error::custom(err.to_string()))
+        })?;
         T::deserialize(ContentDeserializer::new(Content::ByteBuf(bytes)))
     }
 }

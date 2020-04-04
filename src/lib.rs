@@ -5,7 +5,9 @@
 //!
 //! Conceptionally there are three components:
 //!
-//! - [`Identity`](struct.Identity.html) represents a single device.
+//! - [`Identity`](struct.Identity.html) represents a single device.  However
+//!   for extra safety a device can rotate IDs for as long as it also polls
+//!   for some period of time on the older IDs.
 //! - [`Authority`](struct.Authority.html) represents a trusted authority
 //!   (for instance the ministry of health)
 //! - [`ContactLog`](struct.ContactLog.html) is a minimal abstraction over a
@@ -20,7 +22,7 @@
 //!
 //! An identity can be looked at in two other ways: a
 //! [`ShareIdentity`](struct.ShareIdentity.html) which is an identity which
-//! is encrytped with the public key of the public authority and is only ever
+//! is encrypted with the public key of the public authority and is only ever
 //! shared with other devices.  The share ID should rotate regularly and can
 //! be used by the central authorities to determine that a user saw another user.
 //! Since the IDs rotate it's impossible (at least on this level) for a device
@@ -39,11 +41,27 @@
 //!   devices deployed all over the place.
 //! - a user submits a list of contacts they saw
 //!
+//! # Notifications
+//!
+//! The central authority marks the hashed IDs of contacts as tainted.  A
+//! device polls alls of the hashed IDs of all the unique IDs it generated and
+//! used in the last N days (for instanc 14 days) for tainted status.  If any
+//! show up as tained they should contact the authorities.
+//!
+//! # ID Behavior
+//!
+//! * unique ID: you can make multiple but not rotate them too often.  You should
+//!   never share this ID because if someone else has it, they can *become* you.
+//! * share ID: this is good to share with others but you should rotate it regularly
+//! * hashed ID: a derived version of the unique ID that is used for polling for
+//!   tainted status.  You should only send a hashed ID to the authority and nobody
+//!   else otherwise they can poll your taint status.
+//!
 //! # ID Cycling
 //!
 //! When a user is revealed by testing positive they are encouraged to rotate
-//! the ID.  They can do that safely because after testing positive they will
-//! end up in quarantine anyways.  Since other users unique IDs are also
+//! the unique ID.  They can do that safely because after testing positive they
+//! will end up in quarantine anyways.  Since other users unique IDs are also
 //! revealed through contact list uploaded they are encouraged to rotate once
 //! they test positive.  If they test negative they could start sending with a
 //! new ID instead of the old one but they would still need to poll the old ID
