@@ -25,6 +25,6 @@ lint:
 	@cargo clippy
 
 update-readme:
-	@cargo readme > README.md
+	@cargo readme | perl -p -e "s/\]\(([^\/]+)\)/](https:\/\/docs.rs\/covidcotra\/latest\/covidcotra\/\\1)/" > README.md
 
 .PHONY: all doc test cargotest format format-check lint update-readme
