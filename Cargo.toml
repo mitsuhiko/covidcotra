@@ -1,0 +1,18 @@
+[package]
+name = "covidcotra"
+version = "0.1.0"
+authors = ["Armin Ronacher <armin.ronacher@active-4.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+sodiumoxide = { version = "0.2.5", features = ["serde"] }
+uuid = { version = "0.8.1", features = ["v4", "serde"] }
+pbkdf2 = { version = "0.3.0", default-features = false }
+sha2 = "0.8.1"
+hmac = "0.7.1"
+derive_more = "0.99.5"
+serde = { version = "1.0.106", features = ["derive"] }
+serde_bytes = "0.11.3"
+chrono = { version = "0.4.11", features = ["serde"] }
