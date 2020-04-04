@@ -1,7 +1,6 @@
 //! Implements the authentication layer.
 use std::borrow::Cow;
 
-use derive_more::{Display, Error};
 use hmac::Hmac;
 use pbkdf2::pbkdf2;
 use serde::{de, ser, Deserialize, Serialize};
@@ -110,16 +109,6 @@ impl ShareIdentity {
             .map(UniqueIdentity)
     }
 }
-
-/// Error when an identity cannot be parsed.
-#[derive(Debug, Display, Error)]
-#[display(fmt = "Could not parse identity")]
-pub struct ParseIdentityError;
-
-/// Error when a hashed identity cannot be parsed.
-#[derive(Debug, Display, Error)]
-#[display(fmt = "Could not parse hashed identity")]
-pub struct ParseHashedIdentityError;
 
 impl Identity {
     /// Creates a new random identity.

@@ -27,12 +27,17 @@ impl ContactLog {
     }
 
     /// Decodes the contacts with the secret key of the authority.
+    ///
+    /// This returns `None` if decoding fails (invalid key or data).
     pub fn decode(&self, secret_key: &SecretKey) -> Option<Vec<(UniqueIdentity, DateTime<Utc>)>> {
-        let mut rv = vec![];
+        let mut rv = HashMap::new();
         for (contact, &timestamp) in self.seen.iter() {
-            rv.push((contact.reveal(secret_key)?, timestamp));
+            let unique_id = contact.reveal(secret_key)?;
+            if rv.get(&unique_id).map_or(true, |old| *old < timestamp) {
+                rv.insert(unique_id, timestamp);
+            }
         }
-        Some(rv)
+        Some(rv.into_iter().collect())
     }
 }
 
