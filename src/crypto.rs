@@ -18,12 +18,12 @@ pub fn gen_keypair() -> (PublicKey, SecretKey) {
 }
 
 /// Encrypts some bytes.
-pub fn seal(bytes: &[u8], receiver: &PublicKey) -> Vec<u8> {
+pub(crate) fn seal(bytes: &[u8], receiver: &PublicKey) -> Vec<u8> {
     sealbox_impl::seal(bytes, &receiver.0)
 }
 
 /// Decrypts bytes.
-pub fn unseal(bytes: &[u8], secret_key: &SecretKey) -> Option<Vec<u8>> {
+pub(crate) fn unseal(bytes: &[u8], secret_key: &SecretKey) -> Option<Vec<u8>> {
     let public_key = secret_key.0.public_key();
     sealbox_impl::open(bytes, &public_key, &secret_key.0).ok()
 }

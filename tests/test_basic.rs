@@ -2,11 +2,11 @@ use covidcotra::*;
 
 #[test]
 fn test_tracking() {
-    let authority = authority::Authority::unique();
+    let authority = Authority::unique();
 
-    let user_2 = auth::Identity::unique();
+    let user_2 = Identity::unique();
 
-    let mut user_1_log = contactlog::ContactLog::new();
+    let mut user_1_log = ContactLog::new();
     user_1_log.add(&user_2.new_share_id(authority.public_key()));
 
     let log = user_1_log.decode(authority.secret_key()).unwrap();
