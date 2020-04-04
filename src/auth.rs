@@ -1,13 +1,16 @@
 //! Implements the authentication layer.
 use std::borrow::Cow;
 
+use derive_more::{Display, Error};
 use hmac::Hmac;
 use pbkdf2::pbkdf2;
 use serde::{de, ser, Deserialize, Serialize};
+use serde_plain::{forward_display_to_serde, forward_from_str_to_serde};
 use sha2::Sha256;
 use uuid::Uuid;
 
 use crate::crypto::{seal, unseal, PublicKey, SecretKey};
+use crate::utils::base64;
 
 const SHARED_SALT: &[u8; 16] = b"nX\xdfu\x1au=\xd7\xe3d.\x1c\xb2\x11P\x0b";
 
@@ -67,12 +70,22 @@ impl From<IdentitySmol> for Identity {
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
 pub struct HashedIdentity([u8; 32]);
 
+/// Error for invalid hashed identities.
+#[derive(Debug, Error, Display, Clone)]
+#[display(fmt = "cannot parse hashed identity")]
+pub struct HashedIdentityParseError;
+
+forward_display_to_serde!(HashedIdentity);
+forward_from_str_to_serde!(HashedIdentity, |_x| -> HashedIdentityParseError {
+    HashedIdentityParseError
+});
+
 impl Serialize for HashedIdentity {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: ser::Serializer,
     {
-        serde_bytes::serialize(&self.0[..], serializer)
+        base64::serialize(&self.0[..], serializer)
     }
 }
 
@@ -81,7 +94,7 @@ impl<'de> Deserialize<'de> for HashedIdentity {
     where
         D: de::Deserializer<'de>,
     {
-        let bytes: Cow<'de, [u8]> = serde_bytes::deserialize(deserializer)?;
+        let bytes: Cow<'de, [u8]> = base64::deserialize(deserializer)?;
         if bytes.len() == 32 {
             let mut id = [0u8; 32];
             id.copy_from_slice(&bytes);
@@ -99,7 +112,20 @@ impl<'de> Deserialize<'de> for HashedIdentity {
 /// version of the unique ID and sent to other devices.  Only the central
 /// authority's key can decode the contained identity.
 #[derive(Clone, Serialize, Deserialize, Hash, PartialEq, Eq)]
-pub struct ShareIdentity(#[serde(with = "serde_bytes")] Vec<u8>);
+pub struct ShareIdentity(#[serde(with = "base64")] Vec<u8>);
+
+/// Error for invalid share identities.
+#[derive(Debug, Error, Display, Clone)]
+#[display(fmt = "cannot parse share identity")]
+pub struct ShareIdentityParseError;
+
+forward_display_to_serde!(ShareIdentity);
+forward_from_str_to_serde!(ShareIdentity, |_x| -> ShareIdentityParseError {
+    {
+        dbg!(_x);
+        ShareIdentityParseError
+    }
+});
 
 impl ShareIdentity {
     /// Reveals the unique identity behind a shared identity
