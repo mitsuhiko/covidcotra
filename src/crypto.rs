@@ -5,11 +5,11 @@ use sodiumoxide::crypto::sealedbox::curve25519blake2bxsalsa20poly1305 as sealbox
 
 /// Represents a public key.
 #[derive(Serialize, Deserialize, Copy, Clone, Debug)]
-pub struct PublicKey(box_impl::PublicKey);
+pub struct PublicKey(#[serde(with = "crate::utils::base64")] box_impl::PublicKey);
 
 /// Represents a secret key.
 #[derive(Serialize, Deserialize, Clone, Debug)]
-pub struct SecretKey(box_impl::SecretKey);
+pub struct SecretKey(#[serde(with = "crate::utils::base64")] box_impl::SecretKey);
 
 /// Generates a new key pair.
 pub fn gen_keypair() -> (PublicKey, SecretKey) {
